@@ -37,6 +37,10 @@ class ImageUpload(Resource):
             classList = []
             coordinateList = []
             l = 0
+            confCutOff = 0.5
+            ml = 0
+            isDetected = False
+            isMulti = False
             for result in otcm:
                 boxes = result.boxes  # Boxes object for bbox outputs
                 masks = result.masks  # Masks object for segmenation masks outputs
@@ -44,9 +48,15 @@ class ImageUpload(Resource):
             for i in range(len(boxes)):
                 print('i is ', i)
                 ar = boxes[i]
-                classList.append({ "class":names[int(ar.cls)],"confidence":str(ar.conf.item())})
-                coordinateList.append({ "x1":str(ar.xyxy[0,0].item()),"y1":str(ar.xyxy[0,1].item()),"x2":str(ar.xyxy[0,2].item()),"y2":str(ar.xyxy[0,3].item())})
-            return jsonify({"success":"true","coordinateList":coordinateList,"classList":classList})
+                if(ar.conf.item() > confCutOff):
+                    isDetected = True
+                    if(ml > 1):
+                        isMulti = True
+                    ml = ml + 1
+                    classList.append({ "classStr":names[int(ar.cls)],"confidence":str(ar.conf.item())})
+                    coordinateList.append({ "x1":str(ar.xyxy[0,0].item()),"y1":str(ar.xyxy[0,1].item()),"x2":str(ar.xyxy[0,2].item()),"y2":str(ar.xyxy[0,3].item())})
+                    
+            return jsonify({"success":"true","coordinateList":coordinateList,"classList":classList,"isMulti":isMulti, "isDetected":isDetected})
 
             # Optionally, you can process the image using the Pillow library.
             # For example, let's check the image size (width and height).
@@ -64,4 +74,4 @@ api.add_resource(ImageUpload, '/api/upload')
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
