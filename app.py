@@ -37,7 +37,7 @@ class ImageUpload(Resource):
             classList = []
             coordinateList = []
             l = 0
-            confCutOff = 0.5
+            confCutOff = 0.40
             ml = 0
             isDetected = False
             isMulti = False
