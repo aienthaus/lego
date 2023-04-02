@@ -30,7 +30,8 @@ class ImageUpload(Resource):
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
 
-            model = YOLO(os.path.join(os.path.dirname(__file__),'sst.pt'))
+            # model = YOLO(os.path.join(os.path.dirname(__file__),'sst.pt'))
+            model = YOLO(os.path.join(os.path.dirname(__file__),'bst.pt'))
             # model = YOLO('yolov8x.pt')
             otcm = model.predict(source=file_path, save=True)
             names = otcm[0].names
